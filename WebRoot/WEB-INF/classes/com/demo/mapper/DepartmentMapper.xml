@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.demo.mapper.DepartmentMapper"> 
+     
+	<select id="selectDepartment" resultType="DisplayDepartmentVo" parameterType="SelectDepartmentVo">
+		select department.departmentID,departmentName,employeeName,maxPeople,
+		case when departmentMark=1 then "活动" when departmentMark=2 then "撤销" end departmentMark
+		from department,employee
+		<where>
+			<if test="departmentName!=''">
+				departmentName like '%${departmentName}%' and
+			</if> 
+			<if test="departmentMark!=-1">
+				departmentMark = #{departmentMark} and 
+			</if>
+			department.employeeID = employee.employeeID
+		</where>
+	</select>
+	
+	<select id="selectAllDepartment" resultType="DisplayDepartmentVo">
+		select department.departmentID,departmentName,employeeName,maxPeople,
+		case when departmentMark=1 then "活动" when departmentMark=2 then "撤销" end departmentMark
+		from department,employee
+		<where>
+			department.employeeID = employee.employeeID
+		</where>
+	</select>
+	
+	<select id="getDepartmentID" resultType="int">
+		select count(*) from department
+	</select>
+	
+	<insert id="addDepartment" parameterType="UpdateDepartmentVo" useGeneratedKeys="true" keyProperty="departmentID">
+		insert into department(departmentID,departmentName,employeeID,maxPeople,newdate,fatherDepartmentID,departmentMark) 
+		values('${departmentID}','${departmentName}','${employeeID}',#{maxPeople},'${newdate}','${fatherDepartmentID}',1)
+	</insert>
+	
+	<select id="selectDepartmentDetails" resultType="DepartmentDetailsVo">
+		select d1.departmentID,d1.departmentName,e.employeeID,e.employeeName,d1.maxPeople,
+		count(*) as numberOfEmployee,d1.newdate,
+		d2.departmentID as fatherDepartmentID,d2.departmentName as fatherDepartmentName,
+		case when d1.departmentMark=1 then "活动" when d1.departmentMark=2 then "撤销" end departmentMark
+		from department d1,department d2,employee e
+		<where>
+			d1.departmentID='${departmentID}' and d1.employeeID = e.employeeID and 
+			(d1.fatherDepartmentID = d2.departmentID or d1.fatherDepartmentID = null)
+		</where>
+	</select>
+	
+	<select id="selectDepartmentEmployee" resultType="DepartmentEmployeeVo">
+		select employeeID,employeeName,headshipName,headshipLevel,sex,
+		(year(now())-year(birthday)-1) + ( DATE_FORMAT(birthday, '%m%d') &lt;= DATE_FORMAT(NOW(), '%m%d') ) as age
+		from employee,headship
+		<where>
+			employee.departmentID = '${departmentID}' and employee.headshipID = headship.headshipID
+		</where>
+	</select>
+	
+	<update id="updateDepartment" parameterType="UpdateDepartmentVo">
+		update department set departmentName='${departmentName}',employeeID='${employeeID}',
+		maxPeople=#{maxPeople},newdate='${newdate}',fatherDepartmentID='${fatherDepartmentID}',
+		departmentMark=1
+		<where>
+			departmentID='${departmentID}'
+		</where>
+	</update>
+	
+	<update id="resetDepartmentMark">
+		update department set departmentMark=
+		case when departmentMark=1 then 2 when departmentMark=2 then 1
+		end
+		where departmentID='${departmentID}'
+	</update>
+</mapper>

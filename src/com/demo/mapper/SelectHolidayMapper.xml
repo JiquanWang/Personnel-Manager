@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.demo.mapper.SelectHolidayMapper">
+	<select id="selectHolidayList" resultType="DisplayHolidayVo" parameterType="SelectHolidayVo">
+		SELECT	takeOffID,employeeName,holidayTypeName,takeOffDays,startDay,endDay
+		FROM employee,request,holidaytype
+		<where>
+			request.employeeID=employee.employeeID and request.holidayTypeID=holidaytype.holidayTypeID 
+			and request.employeeID='${employeeID}' 
+			<if test="startDay!='' and startDay!=null">
+				and request.startDay &gt;= '${startDay}' 
+			</if>
+			<if test="endDay!='' and endDay!=null">
+				and request.endDay &lt;= '${endDay}'
+			</if>
+		</where>
+	</select>
+	
+	<select id="selectTakeOffDetails" resultType="TakeOffDetailsVo">
+		select request.employeeID,employeeName,holidayTypeName,takeOffDays,startDay,endDay,applyDay
+		from employee,holidaytype,request
+		<where>
+			takeOffID='${takeOffID}' and request.employeeID=employee.employeeID 
+			and request.holidayTypeID=holidaytype.holidayTypeID
+		</where>
+	</select>
+	
+	<select id="selectTakeOffExamine" resultType="TakeOffExamineVo">
+		SELECT examineLevel,employeeName as examinerName,examineOpinion,examineDate,
+		case when examineResult=1 then '通过' 
+		when examineResult=2 then '未通过' 
+		when examineResult=3 then '审核中'
+		end examineResult
+		FROM examine,employee
+		<where>
+			examine.takeOffID='${takeOffID}' and examine.examinerID=employee.employeeID
+		</where>
+	</select>
+</mapper>

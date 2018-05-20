@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.demo.mapper.HolidayReqMapper"> 
+     <select id="getAllTypes" resultType="HolidayType">
+     	select * from holidaytype
+     	<where>
+     		holidayMark = 1
+     	</where>
+     </select>
+     
+     <select id="getRemain" resultType="Rdays">
+     	select * from rdays
+     	<where>
+     		employeeID = '${eid}'
+     		and holidayID = '${hoid}'
+     	</where>
+     </select>
+     
+     <select id="getAllReq" resultType="Request">
+     	select * from request
+     </select>
+     
+     <insert id="addReq" parameterType="HolidayRequestVo">
+     	insert into request(takeOffID, employeeID, holidayTypeID, takeOffDays,
+     	applyDay, startDay, endDay, reason, status)
+     	values('${takeOffID}', '${employeeID}','${holidayTypeID}',
+     	#{takeOffDays},#{applyDay},#{startDay},'${endDay}',
+     	null,3)
+     </insert>
+     
+     <update id="updateRdays" parameterType="Rdays">
+     	update rdays
+     	set remainingDays = '${remainingDays}'
+     	<where>
+     		employeeID = '${employeeID}'
+     		and holidayID = '${holidayID}'
+     	</where>
+     </update>
+    
+</mapper>

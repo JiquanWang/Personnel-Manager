@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.demo.mapper.UserMapper">  
+	<!-- 获取所有的员工表单 -->    
+	<select id="getAllEmployee" resultType="Employee">
+		select * from employee
+	</select>
+	
+	<!-- 用户登录验证，验证账号密码，并返回一个Employee对象给主页面，该对象保存在session中 -->
+	<select id="userLogin" resultType="Employee" parameterType="UserLoginVo">
+		select * from employee
+		<where>
+			employee.username = '${username}' and employee.password = '${password}'
+		</where>
+	</select>
+	
+	<select id="passwordConform" resultType="int">
+		select count(employeeID) from employee
+		<where>
+			employeeID = #{id} and password = #{oldPass}
+		</where>
+	</select>
+	
+	<update id="changePassword">
+		update employee
+		set password = #{newPass}
+		where employeeID = #{id}
+	</update>
+	
+	
+	
+	
+	<!-- headship by ldq -->
+	
+	<select id="getHeadshipID" resultType="int">
+		select count(*) from headship
+	</select>
+	<select id="getAllHeadShip" resultType="Headship">
+		select * from headship
+	</select>
+	<insert id="addHeadship" parameterType="selectHeadshipVo" useGeneratedKeys="true" keyProperty="headshipID">
+        insert into headship(headshipID,headshipName,headshipLevel,headshipMark) values( '${headshipID}','${headshipName}','${headshipLevel}',1)
+    </insert>
+    
+	<select id="selectHeadship" parameterType="selectHeadshipVo" resultType="selectHeadshipVo" >
+		select headshipID,headshipName,headshipLevel,
+		case when headshipMark=1 then "活动"
+		when headshipMark=2 then "撤销" 
+		end headshipMark from headship 
+		<where>
+			<if test="headshipName!=''">
+				and headshipName like '%${headshipName}%'
+			</if>
+			<if test="headshipMark!=-1">
+				and headshipMark='${headshipMark}'
+			</if>
+		</where>
+	</select>
+	
+	<select id="selectAllHeadship" parameterType="selectHeadshipVo" resultType="selectHeadshipVo" >
+		select headshipID,headshipName,headshipLevel,
+		case when headshipMark=1 then "活动"
+		when headshipMark=2 then "撤销" 
+		end headshipMark from headship 
+	</select>
+	
+	<select id="chakan1" parameterType="selectHeadshipVo" resultType="seeVo">
+		SELECT DISTINCT employee.employeeID,employeeName,departmentName,
+		case when sex=1 then "男"
+		when sex=2 then "女" end sex,
+		(year(now())-year(birthday)-1) + ( DATE_FORMAT(birthday, '%m%d') &lt;= DATE_FORMAT(NOW(), '%m%d') ) as age  
+		from employee,department  
+		<where>
+			employee.headshipID=${headshipID} AND employee.departmentID=department.departmentID
+		</where>
+	</select>
+	
+	<select id="chakan2" parameterType="selectHeadshipVo" resultType="selectHeadshipVo" >
+		select headshipID,headshipName,headshipLevel,
+		case when headshipMark=1 then "活动"
+		when headshipMark=2 then "撤销" 
+		end headshipMark from headship 
+		<where>
+			headshipID=${headshipID}
+		</where>
+	</select>
+	
+	<update id="huifu" parameterType="selectHeadshipVo">
+		Update headship SET headshipMark = 2 where headshipID = ${headshipID};
+	</update>
+	
+	<update id="huifu1" parameterType="selectHeadshipVo">
+		Update headship SET headshipMark = 1 where headshipID = ${headshipID};
+	</update>
+	
+	<update id="update" parameterType="selectHeadshipVo">
+		Update headship SET headshipName ="${headshipName}" ,headshipLevel="${headshipLevel}" where headshipID = ${headshipID}
+	</update>
+	
+	<select id="selectByName" parameterType="selectHeadshipVo" resultType="int">
+		select count(*) from headship
+		<where>
+			headshipName="${headshipName}" and headshipLevel="${headshipLevel}"
+		</where>
+	</select>
+</mapper>

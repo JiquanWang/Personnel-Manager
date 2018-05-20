@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.demo.mapper.DeptMapper">      
+
+	<!-- 查询所有的部门 -->
+	<select id="getAllDept" resultType="Department">
+		select * from department
+	</select>
+	
+	<select id="getAllEDdetails" resultType="EDdetails">
+		select * from eddetails
+	</select>
+	
+	<insert id="addEDdetail" parameterType="EDdetails" useGeneratedKeys="true" keyProperty="EDdetailsID">
+		insert into eddetails(EDdetailsID, employeeID, departmentID, startDate, endDate)
+		values('${EDdetailsID}','${employeeID}','${departmentID}','${startDate}',NULL)
+	</insert>
+	
+	<!-- 查询所有其他的部门 -->
+	<select id="getOtherDept" resultType="Department">
+		select * from department
+		where departmentID not in(select departmentID from employee where employeeID = '${id}')
+	</select>
+	
+	<update id="changeDept">
+		update employee 
+		set departmentID = '${did}'
+		<where>
+			employeeID = '${eid}'
+		</where>
+	</update>
+	
+	<select id="getMan" resultType="String">
+		select department.employeeID 
+		from department, employee
+		<where>
+			employee.departmentID = department.departmentID
+			and employee.employeeID = '${eid}'
+		</where>
+	</select>
+	
+	<select id="getUpperDeptManID" resultType="String">
+		select f.employeeID from department s, department f
+		<where>
+			s.fatherDepartmentID = f.departmentID 
+			and s.departmentID = '${id}'
+		</where>
+	</select>
+</mapper>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.demo.mapper.vAppedListMapper"> 
+	<select id="selectvAppedList" parameterType="Employee" resultType="vAppedListVo">
+		select request.takeOffID,employeeName ,holidayTypeName,startDay,endDay,takeOffDays
+		from employee,holidaytype,request,examine	
+		<where >
+			employee.employeeID=request.employeeID AND holidaytype.holidayTypeID=request.holidayTypeID 
+			AND examine.takeOffID = request.takeOffID
+			AND examine.examinerID='${employeeID}'
+		</where> 	
+	</select>
+	<select id="chaxun" parameterType="vAppedListVo" resultType="vAppedListVo">
+		select request.takeOffID,employeeName ,holidayTypeName,startDay,endDay,takeOffDays
+		from employee,holidaytype,request,examine
+		<where >
+			employee.employeeID=request.employeeID AND holidaytype.holidayTypeID=request.holidayTypeID
+			AND examine.examinerID='${examinerID}'
+			<if test="employeeName!=''">
+			AND employee.employeeName like '%${employeeName}%'
+			</if>
+			<if test="startDay!='' and startDay!=null">
+			AND startDay &gt;= '${startDay}'
+			</if>
+			<if test="endDay!='' and endDay!=null">
+			 AND endDay &lt;='${endDay}'
+			 </if>
+		</where> 	
+	</select>
+	
+	<select id="chakan1" parameterType="vAppedListVo" resultType="vAppedListVo">
+		select request.takeOffID,employeeName,employee.employeeID,holidayTypeName,takeOffDays,startDay,endDay,applyDay
+		FROM request,examine,employee,holidaytype
+		WHERE employee.employeeID=request.employeeID AND holidaytype.holidayTypeID=request.holidayTypeID
+        AND request.takeOffID=examine.takeOffID
+		AND request.takeOffID=${takeOffID}
+	</select>
+	
+	<select id="chakan2" parameterType="vAppedListVo" resultType="vAppedListVo">
+	SELECT examineLevel,employee.employeeName,examineOpinion,examineDate,
+	case when examineResult=1 then "通过"
+	when examineResult=2 then "不通过"
+	when examineResult=3 then "审核中" end examineResult 
+	FROM examine,request,employee
+    WHERE examinerID=employee.employeeID AND request.takeOffID=examine.takeOffID 
+    AND request.takeOffID=${takeOffID}
+	</select>
+	
+</mapper>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.demo.mapper.HolidayTypeMapper">  
+<!-- 单纯的查询 -->
+	<select id="selectHolidayType" parameterType="HolidayTypeSelectVo" resultType="HolidayType" >
+		select holidayTypeID, holidayTypeName, holidayMark
+		from holidayType 
+		<where>
+			<if test="holidayTypeName!=''">
+				and holidayTypeName like '%${holidayTypeName}%'
+			</if>
+			<if test="holidayMark!=-1">
+				and holidayMark='${holidayMark}'
+			</if>
+		</where>
+	</select>
+<!-- 为增加类型做的准备 -->
+	<select id="selectByName" parameterType="HolidayTypeSelectVo" resultType="int">
+		select count(*) from holidayType
+		<where>
+			holidayTypeName="${holidayTypeName}"
+		</where>
+	</select>
+<!-- 增加假期类型 -->
+	<insert id="addHolidayType" parameterType="HolidayTypeSelectVo" useGeneratedKeys="true" keyProperty="headshipID">
+        insert into holidayType values( '${holidayTypeID}','${holidayTypeName}',1)
+    </insert>
+<!-- 查询当前有多少种假期类型 -->
+	<select id="selectNumber" resultType="int">
+		select count(*) from holidayType
+	</select>
+<!-- 查询所有的假期类型 -->
+	<select id="selectAllHolidayType" resultType="HolidayType">
+		select * from holidayType
+	</select>
+<!-- 修改假期名称 -->
+	<update id="updateHolidayType" parameterType="HolidayTypeSelectVo">
+		Update holidayType SET holidayTypeName ="${holidayTypeName}" where holidayTypeID = ${holidayTypeID}
+	</update>
+<!-- 按照ID查询 -->
+	<select id="selectHolidayTypeByID" parameterType="HolidayTypeSelectVo" resultType="HolidayType">
+		select * from holidayType where holidayTypeID = ${holidayTypeID}
+	</select>
+<!-- 修改状态 -->
+	<update id="resetHolidayMark">
+		update holidayType set holidayMark=
+		case when holidayMark=1 then 2 when holidayMark=2 then 1
+		end
+		where holidayTypeID='${holidayTypeID}'
+	</update>
+</mapper>

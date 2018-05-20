@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.demo.mapper.HeadshipMapper">     
+	<select id="getAllHeadship" resultType="Headship">
+		select * from headship
+	</select> 
+	
+	<select id="getAllEHdetails" resultType="EHdetails">
+		select * from ehdetails
+	</select>
+	
+	<insert id="addEHdetail" parameterType="EHdetails" useGeneratedKeys="true" keyProperty="EHdetailsID" >
+		insert into ehdetails(EHdetailsID, employeeID, headshipID, startDate, endDate)
+		values('${EHdetailsID}','${employeeID}','${headshipID}','${startDate}',NULL)
+	</insert>
+	
+	<select id="getOtherHeadship" resultType="Headship">
+		select * from headship
+		where headshipID not in(select headshipID from employee where employeeID = '${id}')
+	</select>
+	
+	<update id="changeHeadship">
+		update employee
+		set headshipID = '${hid}'
+		<where>
+			employeeID = '${eid}'
+		</where>
+	</update>
+</mapper>

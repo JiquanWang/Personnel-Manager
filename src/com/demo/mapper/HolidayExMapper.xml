@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.demo.mapper.HolidayExMapper"> 
+	<select id="getAllExamines" resultType="Examine">
+		select * from examine
+	</select>
+	
+	<insert id="addEx">
+		insert into examine(examineTableID, takeOffID, examineLevel, 
+		examinerID, examineResult, examineDate, examineOpinion)
+		values('${exid}', '${tid}', 1, '${exrid}', 3, null, null)
+	</insert>
+	
+	<insert id="approve">
+		insert into examine(examineTableID, takeOffID, examineLevel, 
+		examinerID, examineResult, examineDate, examineOpinion)
+		values('${exid}', '${tid}', 1, '${exrid}', 1, now(), null)
+	</insert>
+	
+	<update id="bohui">
+		update examine
+		set examineDate = now(), examineResult = 2, examineOpinion = '${opinion}'
+		<where>
+			takeOffID = '${tid}'
+		</where>
+	</update>
+	
+	<update id="bohuiReq">
+		update request
+		set status = 2
+		<where>
+			takeOffID = '${tid}'
+		</where>
+	</update>
+</mapper>

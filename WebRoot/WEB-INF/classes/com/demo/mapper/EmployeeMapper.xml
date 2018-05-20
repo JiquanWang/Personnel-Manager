@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.demo.mapper.EmployeeMapper">      
+
+	<!-- 根据给的员工编号，查询员工的个人信息 -->
+	<select id="getUserInfo" resultType="UserInfoVo">
+		select employee.employeeID, employeeName,departmentName, headshipName, headshipLevel,
+		 sex, hireDate, birthday from employee,department, headship 
+		<where>
+			employee.employeeID = '${id}'
+			and employee.departmentID = department.departmentID
+			and employee.headshipID = headship.headshipID
+		</where>
+	</select>
+	
+	<select id="getEDdetails" resultType="EDdetailsVo">
+		select employeeName,departmentName,startDate, endDate from eddetails,employee,department
+		<where>
+			eddetails.employeeID = '${id}'
+			and employee.employeeID = eddetails.employeeID
+			and department.departmentID = eddetails.departmentID
+		</where>
+	</select>
+	
+	<select id="getEHdetails" resultType="EHdetailsVo">
+		select employeeName, headshipName, startDate, endDate from ehdetails,employee, headship
+		<where>
+			ehdetails.employeeID = '${id}'
+			and employee.employeeID = ehdetails.employeeID
+			and headship.headshipID = ehdetails.headshipID
+		</where>
+	</select>
+	
+	<select id="getAllEmpInfo" resultType="EmpInfoVo">
+		select employee.employeeID, employeeName, sex, departmentName, headshipName, 
+		case when employeeMark="1" then "在职"
+		when employeeMark="2" then "离职" end employeeMark,
+		hireDate
+		from employee, department, headship
+		<where>
+			department.departmentID = employee.departmentID
+			and  employee.headshipId = headship.headshipID
+		</where>
+	</select>
+	
+	
+	<select id="selectEmp" resultType="EmpInfoVo" parameterType="EmpRequestVo">
+		select employee.employeeID, employeeName, sex, departmentName, headshipName, 
+		case when employeeMark="1" then "在职"
+		when employeeMark="2" then "离职" end employeeMark,
+		hireDate
+		from employee, department, headship
+		<where>
+			department.departmentID = employee.departmentID
+			and  employee.headshipId = headship.headshipID
+			<if test="employeeName!=''">
+				and employeeName like '%${employeeName}%'
+			</if>
+			<if test="sex == 1">
+				and sex='男'
+			</if>
+			<if test="sex == 2">
+				and sex='女'
+			</if>
+			<if test="departmentName != -1">
+				and employee.departmentID = '${departmentName}'
+			</if>
+			<if test="headshipName != -1">
+				and employee.headshipID = '${headshipName}'
+			</if>
+			<if test="startDate != ''and startDate!=null">
+				and hireDate &gt;= #{startDate}
+			</if>
+			<if test="endDate != '' and endDate!=null">
+				and hireDate &lt;= #{endDate}
+			</if>
+			<if test="employeeMark != -1">
+				and employeeMark = '${employeeMark}'
+			</if>
+		</where>
+	</select>
+	
+	<select id="getEmpPoInfo" resultType="Employee">
+		select * from employee
+		<where>
+			employeeID = '${id}'
+		</where>
+	</select>
+	
+	<update id="updateEmp" parameterType="Employee">
+		update employee
+		set employeeName = '${employeeName}',
+		username = '${username}',
+		<if test="sex == 1">
+			sex = '男',
+		</if>
+		<if test="sex == 2">
+			sex = '女',
+		</if>
+		birthday = #{birthday},
+		hiredate = #{hiredate},
+		salary = #{salary},
+		power = #{power}
+		<where>
+			employeeID = '${employeeID}'
+		</where>
+	</update>
+	
+	<select id="getEmpByUsername" resultType="Employee">
+		select * from employee
+		<where>
+			username = '${username}'
+		</where>
+	</select>
+	
+	<insert id="addEmp" parameterType="Employee" useGeneratedKeys="true" keyProperty="employeeID">
+        insert into employee(employeeID, employeeName, username, password, sex, 
+        	birthday, hiredate, salary, power, departmentID, headshipID, employeeMark) 
+        values( '${employeeID}','${employeeName}','${username}','${password}',
+        	<if test="sex == 1">'男',</if>
+        	<if test="sex == 2">'女',</if>
+        '${birthday}', '${hiredate}', #{salary}, #{power}, '${departmentID}', '${headshipID}',1)
+    </insert>
+    
+    
+    <update id="changeEmpMark">
+		update employee set employeeMark=
+		case when employeeMark=1 then 2 
+		when employeeMark=2 then 1 end
+		where employeeID='${id}'
+	</update>
+	
+	<select id="getEDHVOInfo" resultType="EDHVo">
+		select employee.employeeID, employeeName, employee.departmentID, 
+		departmentName, employee.headshipID, headshipName
+		from employee, department, headship
+		<where>
+			employee.employeeID = '${id}'
+			and employee.departmentID = department.departmentID
+			and headship.headshipID = employee.headshipID
+		</where>
+	</select>
+	
+	<insert id="addRdays">
+		insert into rdays(employeeID, holidayID, remainingDays)
+		values('${eid}', '3', 15),
+		('${eid}', '4', 2);
+	</insert>
+	
+	
+	<select id="getDeptID" resultType="String">
+		select departmentID from employee
+		<where>
+			employeeID = '${id}'
+		</where>
+	</select>
+</mapper>
